@@ -1,0 +1,39 @@
+[
+  {
+    "id": "entrance",
+    "name": "Entrance",
+    "description": "A wide open area with 3 paths to take to explore cave",
+    "paths": {
+      "n": "room1",
+      "e": "itemRoom1",
+      "w": "deadEnd1"
+    },
+    "items": 0
+  },
+  {
+    "id": "itemRoom1",
+    "name": "Tresure Room",
+    "description": "A room full of treasure",
+    "paths": {
+      "s": "entrance"
+    },
+    "items": 0
+  },
+  {
+    "id": "room1",
+    "name": "Room 1",
+    "description": "Another room with 2 paths to be taken",
+    "paths": {
+      "s": "entrance",
+      "n": "exit"
+    },
+    "items": 0
+  },
+  {
+    "id": "exit",
+    "name": "Exit",
+    "description": "Looks like you have made it through the dangourous cave!",
+    "paths": {},
+    "items": 0
+  }
+]

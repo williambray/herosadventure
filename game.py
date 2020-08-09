@@ -19,13 +19,10 @@
 import random
 import time
 import sys
+import json
 
 # Entity class is used by all enemy classes and the hero class as a base for shared stats like health & methods that effect stats
 class Entity:
-    hp = 10
-    maxhp = 10
-    dmg = 3
-
     def __init__(self, maxhp, dmg):
         self.hp = maxhp
         self.maxhp = maxhp
@@ -42,6 +39,30 @@ class Entity:
             self.hp = self.maxhp
         else:
             self.hp = newHP
+
+
+# Room class to define rooms in the cave system in section 2
+class Room:
+    def __init__(self, name, description, paths, items):
+        self.name = name
+        self.description = description
+        self.paths = paths
+        self.items = items
+
+
+# Class for the cave system to handle navigation
+class Map:
+    def __init__(self, currentRoom, rooms):
+        self.currentRoom = currentRoom
+        self.rooms = rooms
+
+    def move(self, direction):
+        if direction not in self.currentRoom.paths:
+            print("Cannot move in that direction!")
+            return
+        new_room_name = self.currentRoom.paths[direction]
+        print("Moving to", self.rooms[new_room_name].name)
+        self.currentRoom = self.rooms[new_room_name]
 
 
 # Hero is the class used for the Player's character in the game
@@ -158,7 +179,7 @@ def fightEncounter(player, enemy):
             print(f"\n{player.name}'s HP: {player.hp}")
 
             print("\nPress A to Attack")
-            user = input().lower()
+            user = input(">> ").lower()
 
             if user != "a" and user != "y":
                 print("\nlease enter a valid action")
@@ -178,6 +199,7 @@ def fightEncounter(player, enemy):
                         )
                         player.addXp(enemy.xp)
                         player.showStats()
+                        input("\nPress Enter to continue...")
                         continue
                     # After player has had turn, let enemy attack
                     turn = "enemy"
@@ -209,6 +231,13 @@ def fightEncounter(player, enemy):
     return False
 
 
+# Prints controls to be used when navigating an area
+def showNavControls():
+    print(
+        f"\nYou can navigate the area using the following commands: \n 'N' / 'E' / 'S' / 'W': Direction you would like to travel \n 'Look': Describes the current room and the directions available.\n 'Help': Shows these instructions again. \n"
+    )
+
+
 # Core Game Code.
 def game():
     # Core Game Vars
@@ -234,7 +263,7 @@ def game():
     )
 
     # Let player add own name
-    name = input()
+    name = input(">> ")
     player.changeName(name)
 
     # Section 1
@@ -246,7 +275,7 @@ def game():
 Everything seems peaceful until you hear a sharp noise coming from outside your tent, breaking the peaceful silence. Do you exit the tent to investigate the noise? (Y/N)
     """
     )
-    ans = input().lower()
+    ans = input(">> ").lower()
 
     if ans == "n":
         print(
@@ -282,7 +311,7 @@ It's time to make a move for the Town of Rigladon. Tent packed and paired with y
     print(
         "After walking for hours you are met by a large opening in the face of a mountain, sign posted as the route for Rigladon. Enter the cave to continue to Rigladon? (Y/N)"
     )
-    ans = input().lower()
+    ans = input(">> ").lower()
 
     if ans == "n":
         print(
@@ -290,14 +319,30 @@ It's time to make a move for the Town of Rigladon. Tent packed and paired with y
         )
         sys.exit("\nGame Over")
 
+    # Section 2
+    # Need to generate the rooms in the cave system for the player to explore as they try to make it through the cave to the town of rigladon
+    inCave = True
+    # generate the cave system with rooms
+    caveRooms = {}
+    with open("cave.json") as cave_file:
+        data = json.load(cave_file)
+        for elem in data:
+            caveRooms[elem["id"]] = Room(
+                elem["name"], elem["description"], elem["paths"], elem["items"]
+            )
+
+    cave = Map(caveRooms["entrance"], caveRooms)
+
+    # Introduce player to the cave entrance and the first time fighting globins x2
     print(
         f"\n{player.name} enters the dimmly lit cave, brushed by a moist gust of cold wind that sends chills down their spine. \nA quick strike of your torch on a dry wall of the cave ignites your torch, illuminating the interior walls, exposing the path needed to get through to the other side of the cave."
     )
     time.sleep(1)
     print(
-        f"\nYou continue your path to Rigladon through the cave as your torch lights the way for you. Suddenly as you pass a small encove in the cave a voice shouts out at you from the dark, \"Oi! You! No one get's through this cave alive... The two of us are going to make sure you don't!\""
+        f"\nSuddenly as a voice shouts out at you from the dark, \"Oi! You! No one get's through this cave alive... The two of us are going to make sure you don't!\""
     )
     time.sleep(4)
+
     # 1st fight with goblin
     battle = True
     enemy1 = Goblin(10, 2, 5)
@@ -309,6 +354,31 @@ It's time to make a move for the Town of Rigladon. Tent packed and paired with y
     enemy2 = Goblin(10, 2, 5)
     while battle is True:
         battle = fightEncounter(player, enemy2)
+
+    # After battle x2, the user can now use the move feature to explore the cave
+    print(
+        f"\nLooks like {player.name} now needs to navigate their way through this cave to find the exit."
+    )
+
+    # Cave nav instructions
+    showNavControls()
+
+    # User now gets to navigate through the cave system to find the exit
+    while inCave is True:
+        if cave.currentRoom.name == "Exit":
+            inCave = False
+            break
+
+        command = input(">> ").lower()
+        if command in {"n", "e", "s", "w"}:
+            cave.move(command)
+        elif command == "look":
+            print(cave.currentRoom.description)
+            print("Paths:", ", ".join(cave.currentRoom.paths).upper())
+        elif command == "help":
+            showNavControls()
+        else:
+            print("Invalid Command")
 
     print("\nFin")
 
