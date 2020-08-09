@@ -69,6 +69,7 @@ class Hero(Entity):
             self.xp -= 20
             self.maxhp += 5
             self.hp = self.maxhp
+            self.dmg += 1
             print(
                 f"\n*** {self.name} leveled up! {self.name} is now level {self.lvl} ***"
             )
@@ -76,7 +77,7 @@ class Hero(Entity):
     # Print the players stats
     def showStats(self):
         print(
-            f"\n- {self.name}'s Stats \n| HP: {self.hp} \n| LVL: {self.lvl} \n| MAX HP: {self.maxhp} \n| XP: {self.xp} \n-"
+            f"\n- {self.name}'s Stats \n| HP: {self.hp} \n| DMG: {self.dmg} \n| LVL: {self.lvl} \n| MAX HP: {self.maxhp} \n| XP: {self.xp} \n-"
         )
 
 
@@ -90,10 +91,17 @@ class Goblin(Entity):
     def showSprite(self):
         print(
             fr"""
-        / _ \
-      \_\(_)/_/ HP: {self.hp}
-       _//"\\_  DMG: {self.dmg}
-        /   \
+             ,      ,
+            /(.-""-.)\
+        |\  \/      \/  /|
+        | \ / =.  .= \ / |
+        \( \   o\/o   / )/
+         \_, '-/  \-' ,_/     HP: {self.hp}
+           /   \__/   \       DMG: {self.dmg}
+           \ \__/\__/ /
+         ___\ \|--|/ /___
+       /`    \      /    `\
+      /       '----'       \
                 """
         )
 
@@ -285,6 +293,22 @@ It's time to make a move for the Town of Rigladon. Tent packed and paired with y
     print(
         f"\n{player.name} enters the dimmly lit cave, brushed by a moist gust of cold wind that sends chills down their spine. \nA quick strike of your torch on a dry wall of the cave ignites your torch, illuminating the interior walls, exposing the path needed to get through to the other side of the cave."
     )
+    time.sleep(1)
+    print(
+        f"\nYou continue your path to Rigladon through the cave as your torch lights the way for you. Suddenly as you pass a small encove in the cave a voice shouts out at you from the dark, \"Oi! You! No one get's through this cave alive... The two of us are going to make sure you don't!\""
+    )
+    time.sleep(4)
+    # 1st fight with goblin
+    battle = True
+    enemy1 = Goblin(10, 2, 5)
+    while battle is True:
+        battle = fightEncounter(player, enemy1)
+
+    #  2nd fight with goblin
+    battle = True
+    enemy2 = Goblin(10, 2, 5)
+    while battle is True:
+        battle = fightEncounter(player, enemy2)
 
     print("\nFin")
 
